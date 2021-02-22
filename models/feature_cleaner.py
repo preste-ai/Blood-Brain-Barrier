@@ -11,18 +11,20 @@ class Selector:
     def __init__(self, target, n):
 
         """
-        :param target:
-        :param n:
+        :param target: string indicating target name
+        :param n: number of features to select with each algorithm in class
         """
 
         self.target = target
         self.n = n
 
-    def clean(self, data):
+    def clean(self, data, threshold):
 
         """
-        Cleans inter correlated and zero variance features
-        :return:
+        Cleans NaN, inter correlated and zero variance features
+        :param data: data set to clean
+        :param threshold: maximum value allowed for Pearson correlation between features
+        :return: clean data set split into X and y
         """
 
         X = data.drop(self.target, axis=1)
@@ -31,7 +33,7 @@ class Selector:
         X = X.\
             infer_objects().\
             select_dtypes(include=['float64', 'int64']).\
-            dropna(axis=0)
+            dropna(axis=1)
 
         # drop away nulls and zero variance
         for column in X:
@@ -41,8 +43,7 @@ class Selector:
                 X.drop(columns=column, inplace=True)
 
         # drop r > 0.95 inter correlated features
-        # old method
-        corr = np.sum(abs(X.corr()) > 0.95, axis=1)
+        corr = np.sum(abs(X.corr()) > threshold, axis=1)
         corr_mask = corr <= 1
         X = X.loc[:, corr_mask]
 
@@ -56,9 +57,9 @@ class Selector:
 
         """
         detect and drop intercorrelated features
-        :param data:
-        :param threshold:
-        :return:
+        :param data: data set to clean
+        :param threshold: maximum value allowed for Pearson correlation between features
+        :return: clean data
         """
 
         col_corr = set()  # Set of all the names of deleted columns
@@ -76,14 +77,15 @@ class Selector:
 
         """
         Normalize features in data set
-        :param data:
+        :param data: data set to normalize
         :param standard: method used for normalization:
                          True for StandardScaler
                          False for MinMaxScaler
-        :return:
+        :return: normalized data split into X and y
         """
 
-        X, y = self.clean(data=data)
+        X, y = self.clean(data=data,
+                          threshold=0.95)
 
         if standard:
             scaler = StandardScaler()
@@ -99,7 +101,7 @@ class Selector:
 
         """
         CHI2 filter
-        :return:
+        :return: boolean series with True for selected features
         """
 
         chi_selector = SelectKBest(chi2, k=self.n)
@@ -112,7 +114,7 @@ class Selector:
 
         """
         RFE with RF filter
-        :return:
+        :return: boolean series with True for selected features
         """
 
         rfe_selector = RFE(estimator=RandomForestClassifier(n_estimators=100,
@@ -129,7 +131,7 @@ class Selector:
 
         """
         LASSO filter
-        :return:
+        :return: boolean series with True for selected features
         """
 
         lr_selector = SelectFromModel(LogisticRegression(penalty="l1",
@@ -147,9 +149,11 @@ class Selector:
 
         """
         Combine all feature selection methods
-        :param data:
-        :return:
+        :param data: data to clean
+        :return: normalized data split into X and y,
+                 dataframe with votes of 3 selectors for each feature in the data set
         """
+
         X, y = self.scale(data=data, standard=False)
         chi_support = self.chi_selector(X, y)
 
