@@ -6,7 +6,12 @@ import seaborn as sns
 
 def calculate_pearsons(data, target):
 
-    """Pearson correlation"""
+    """
+    Pearson correlation
+    :param data:
+    :param target:
+    :return:
+    """
 
     corr_df = data.corr().loc[target].drop(target).reset_index()
     corr_df.columns = ['feature', 'correlation']
@@ -17,7 +22,12 @@ def calculate_pearsons(data, target):
 
 def calculate_mic(data, target):
 
-    """MIC calculation"""
+    """
+    MIC calculation
+    :param data:
+    :param target:
+    :return:
+    """
 
     X = data.drop(target, axis=1)
     y = data.loc[:, target]
@@ -33,6 +43,13 @@ def calculate_mic(data, target):
 
 
 def plot_relationships(data, target):
+
+    """
+    Plot correlations and MIC
+    :param data:
+    :param target:
+    :return:
+    """
 
     corr_df = calculate_pearsons(data, target)
     mic_scores = calculate_mic(data, target)

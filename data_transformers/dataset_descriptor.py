@@ -3,11 +3,11 @@ import glob
 import json
 import pandas as pd
 from multiprocessing import freeze_support
-from models.featurizer import MordredFeaturizer
+from models.transformers.featurizer import MordredFeaturizer
 
 if __name__ == "__main__":
 
-    with open('../parameters.json', 'r') as read_file:
+    with open('../parameters_substrates.json', 'r') as read_file:
 
         parameters = json.load(read_file)
         raw_data = parameters['raw_data']

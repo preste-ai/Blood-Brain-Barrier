@@ -2,10 +2,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import classification_report
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import cross_validate
+from models.classifiers.base import BaseClassifier
 
 
 class Transformer:
@@ -86,85 +85,29 @@ class Transformer:
         plt.show()
 
 
-class LogClassifier:
+class LogClassifier(BaseClassifier):
 
-    def __init__(self, class_weights):
+    def __init__(self, class_weights, random_state):
 
         """
 
         :param class_weights:
         """
 
+        super(BaseClassifier, self).__init__()
         self.class_weights = class_weights
-        self.model = None
-
-    def make_classifier(self, X, y):
-
-        """
-
-        :param X:
-        :param y:
-        :return:
-        """
-
+        self.random_state = random_state
         self.model = LogisticRegression(class_weight=self.class_weights)
-        self.model.fit(X, y)
-        return self.model
-
-    def cross_validate(self, X, y, n_splits):
-
-        """
-
-        :param X:
-        :param y:
-        :param cv:
-        :return:
-        """
-
-        skf = StratifiedKFold(n_splits=n_splits)
-
-        reports_train = []
-        reports_test = []
-
-        for train, test in skf.split(X, y):
-            X_train, X_test = X.iloc[train], X.iloc[test]
-            y_train, y_test = y.iloc[train], y.iloc[test]
-
-            self.model = self.make_classifier(X_train, y_train)
-
-            target_names = ['class 0', 'class 1']
-            report_train = pd.DataFrame(classification_report(y_train, self.model.predict(X_train),
-                                                              output_dict=True,
-                                                              target_names=target_names))
-            report_train = report_train.loc[['precision', 'recall'], ['class 0', 'class 1']]
-
-            report_test = pd.DataFrame(classification_report(y_test, self.model.predict(X_test),
-                                                             output_dict=True,
-                                                             target_names=target_names))
-            report_test = report_test.loc[['precision', 'recall'], ['class 0', 'class 1']]
-
-            reports_train.append(report_train)
-            reports_test.append(report_test)
-
-        reports_train = pd.concat(reports_train)
-        reports_test = pd.concat(reports_test)
-
-        return reports_train.groupby(reports_train.index).mean(), reports_test.groupby(reports_test.index).mean()
-
-    def validate(self, X_val, y_val):
-
-        """
-
-        :param X_val:
-        :param y_val:
-        :return:
-        """
-
-        return classification_report(y_val, self.model.predict(X_val))
 
     def optimize_precision_recall(self, X, y, n_splits):
 
-        self.model = self.make_classifier(X, y)
+        """
+
+        :param X:
+        :param y:
+        :param n_splits:
+        :return:
+        """
 
         cv = cross_validate(estimator=self.model,
                             X=X,
@@ -173,5 +116,4 @@ class LogClassifier:
                             scoring=['precision', 'recall'],
                             return_train_score=True)
 
-        return cv['test_precision'].mean(), \
-               cv['test_recall'].mean()
+        return cv['test_precision'].mean(), cv['test_recall'].mean()

@@ -14,7 +14,7 @@
   "pc_components": 8,
 
   "n_splits": 5,
-  "class_weights_log": {"0": 1, "1": 2},
+  "class_weights_log": {"0": 1, "1": 5},
   "class_weights_rf": {"0": 1, "1": 5},
   "n_estimators": 800,
   "min_samples_leaf": 3

@@ -5,7 +5,7 @@ import pandas as pd
 
 if __name__ == "__main__":
 
-    with open('../parameters.json', 'r') as read_file:
+    with open('../parameters_substrates.json', 'r') as read_file:
 
         parameters = json.load(read_file)
         described_data = parameters['described_data']
