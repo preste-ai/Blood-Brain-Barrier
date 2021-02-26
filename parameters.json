@@ -1,0 +1,82 @@
+{
+  "general": {
+    "raw_data": "data/raw/",
+    "described_data": "data/described/",
+    "processed_data": "data/processed/"
+  },
+
+  "substrates": {
+    "trained_models": "models/trained/classifiers/substrates",
+    "trained_transformers": "models/trained/transformers",
+
+    "dataset_file": "data/processed/substrates.csv",
+    "target_name": "substrate",
+
+    "select_with_method": 50,
+    "select_overall": 20,
+
+    "sampling_strategy": 0.5,
+    "k_neighbors": 5,
+
+    "random_state": 142,
+
+    "pc_components": 8,
+
+    "n_splits": 5,
+    "class_weights_log": {"0": 1, "1": 5},
+    "class_weights_rf": {"0": 1, "1": 5},
+    "n_estimators": 800,
+    "min_samples_leaf": 3
+  },
+
+  "inhibitorsA2": {
+      "trained_models": "models/trained/classifiers/inhibitors_a2",
+  "trained_transformers": "models/trained/transformers",
+
+
+  "dataset_file": "data/processed/inhibitors_a2.csv",
+  "target_name": "inhibitor",
+
+  "select_with_method": 50,
+  "select_overall": 20,
+
+  "sampling_strategy": "all",
+
+  "random_state": 42,
+  "k_neighbors": 3,
+
+  "pc_components": 8,
+
+  "n_splits": 5,
+  "class_weights_log": {"0": 1, "1": 5},
+  "class_weights_rf": {"0": 1, "1": 5},
+  "n_estimators": 800,
+  "min_samples_leaf": 3
+  },
+
+  "inhibitorsB1": {
+      "trained_models": "models/trained/classifiers/inhibitors_b1",
+  "trained_transformers": "models/trained/transformers",
+
+
+  "dataset_file": "data/processed/inhibitors_b1.csv",
+  "target_name": "inhibitor",
+
+  "select_with_method": 60,
+  "select_overall": 40,
+
+  "sampling_strategy": "all",
+
+  "random_state": 42,
+  "k_neighbors": 5,
+
+  "pc_components": 15,
+
+  "n_splits": 5,
+  "class_weights_log": {"0": 1, "1": 5},
+  "class_weights_rf": {"0": 1, "1": 5},
+  "n_estimators": 800,
+  "min_samples_leaf": 3
+  }
+
+}

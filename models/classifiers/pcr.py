@@ -51,7 +51,8 @@ class Transformer:
             transformer = PCA(n_components=n)
             transformed = pd.DataFrame(transformer.fit_transform(self.X))
 
-            classifier = LogClassifier(class_weights=class_weights)
+            classifier = LogClassifier(class_weights=class_weights,
+                                       random_state=42)
 
             precision, recall = classifier.\
                 optimize_precision_recall(X=transformed, y=self.y, n_splits=5)

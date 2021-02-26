@@ -7,15 +7,17 @@ from models.transformers.feature_cleaner import Selector
 from models.transformers.oversampler import Sampler
 from models.classifiers.pcr import Transformer, LogClassifier
 from models.classifiers.forest import ForestClassifier
+from utils import plot_relationships
 
 
 class Constructor:
-    def __init__(self, parameters_file):
-        self.parameters = json.load(open(parameters_file, 'r'))
 
-    def make_data(self):
+    def __init__(self, parameters):
+        self.parameters = parameters
 
-        data = pd.read_csv(self.parameters['processed_data'] + self.parameters['dataset_file'])
+    def make_data(self, plot=False):
+
+        data = pd.read_csv(self.parameters['dataset_file'])
 
         # select best features
         selector = Selector(target=self.parameters['target_name'],
@@ -25,6 +27,7 @@ class Constructor:
 
         # make oversampling
         sampler = Sampler(sampling_strategy=self.parameters['sampling_strategy'],
+                          k_neighbors=self.parameters['k_neighbors'],
                           random_state=self.parameters['random_state'])
         X_smo, y_smo = sampler.transform(X, y)
 
@@ -32,6 +35,10 @@ class Constructor:
         X_train, X_val, y_train, y_val = train_test_split(X_smo, y_smo,
                                                           stratify=y_smo,
                                                           random_state=self.parameters['random_state'])
+
+        if plot:
+            plot_relationships(data=pd.concat([X, y], axis=1),
+                               target=self.parameters['target_name'])
 
         return X_train, X_val, y_train, y_val
 
@@ -102,11 +109,11 @@ class Constructor:
                 model_name = type(model).__name__ + self.parameters['target_name']
 
                 if 'Transformer' in model_name:
-                    with open(f'models/trained/transformers/{model_name}.pkl', 'wb') as file:
+                    with open(f"{self.parameters['trained_transformers']}/{model_name}.pkl", 'wb') as file:
                         pickle.dump(model, file)
                         continue
                 else:
-                    with open(f'models/trained/classifiers/{model_name}.pkl', 'wb') as file:
+                    with open(f"{self.parameters['trained_models']}/{model_name}.pkl", 'wb') as file:
                         pickle.dump(model, file)
                         continue
 
@@ -114,7 +121,7 @@ class Constructor:
 
         elif validate:
             val_scores = {}
-            for model_path in glob.glob('models/trained/classifiers/*.pkl'):
+            for model_path in glob.glob(self.parameters['trained_models']+'/*.pkl'):
                 model_name = model_path.split('/')[-1]
                 if 'Log' in model_name:
                     val_scores[model_name] = self.validate_model(model_path=model_path,
@@ -129,12 +136,10 @@ class Constructor:
 
 if __name__ == "__main__":
 
-    substrates = Constructor(parameters_file='parameters_substrates.json')
+    target = 'inhibitorsB1'
+    constructor = Constructor(parameters=json.load(open('parameters.json', 'r'))[target])
 
-    train_scores = substrates.run(train=True,
-                                  validate=False,
-                                  dump=False)
+    scores = constructor.run(train=False,
+                             validate=True,
+                             dump=False)
 
-    validation_scores = substrates.run(train=False,
-                                       validate=True,
-                                       dump=False)

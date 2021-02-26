@@ -7,14 +7,13 @@ from models.transformers.featurizer import MordredFeaturizer
 
 if __name__ == "__main__":
 
-    with open('../parameters_substrates.json', 'r') as read_file:
+    with open('parameters.json', 'r') as read_file:
 
-        parameters = json.load(read_file)
-        raw_data = parameters['raw_data']
+        parameters = json.load(read_file)['general']
 
     freeze_support()
 
-    for file in glob.glob(raw_data):
+    for file in glob.glob(parameters['raw_data']+'*.csv'):
 
         dataset = pd.read_csv(file)
         filename = os.path.basename(file)
@@ -25,4 +24,4 @@ if __name__ == "__main__":
 
         described_data = transformer.featurize()
 
-        described_data.to_csv('data/described/' + filename)
+        described_data.to_csv(parameters['described_data'] + filename)

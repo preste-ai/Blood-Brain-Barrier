@@ -3,13 +3,14 @@ from imblearn.over_sampling import SMOTE
 
 class Sampler:
 
-    def __init__(self, sampling_strategy, random_state):
+    def __init__(self, sampling_strategy, k_neighbors, random_state):
 
         """
         :param sampling_strategy: fraction of minority class in the transformed data set
         """
 
         self.sampling_strategy = sampling_strategy
+        self.k_neighbors = k_neighbors
         self.random_state = random_state
 
     def transform(self, X, y):
@@ -22,6 +23,7 @@ class Sampler:
         """
 
         model = SMOTE(sampling_strategy=self.sampling_strategy,
+                      k_neighbors=self.k_neighbors,
                       random_state=self.random_state)
         X_smo, y_smo = model.fit_resample(X, y)
 

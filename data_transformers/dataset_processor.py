@@ -5,9 +5,9 @@ import pandas as pd
 
 if __name__ == "__main__":
 
-    with open('../parameters_substrates.json', 'r') as read_file:
+    with open('parameters.json', 'r') as read_file:
 
-        parameters = json.load(read_file)
+        parameters = json.load(read_file)['general']
         described_data = parameters['described_data']
 
     # put described molecules from datasets in three different categories
@@ -15,7 +15,7 @@ if __name__ == "__main__":
                 'inhibitors_a2': [],
                 'inhibitors_b1': []}
 
-    for file in glob.glob(described_data):
+    for file in glob.glob(described_data + '*.csv'):
 
         filename = os.path.basename(file)
         dataset = pd.read_csv(file, index_col=0)
@@ -46,4 +46,4 @@ if __name__ == "__main__":
             drop_duplicates(subset='Smiles').\
             set_index('Molecule ChEMBL ID')
 
-        dataset.to_csv('data/processed/{}.csv'.format(name))
+        dataset.to_csv(parameters['processed_data'] + f'{name}.csv')
