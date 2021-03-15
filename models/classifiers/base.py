@@ -6,15 +6,21 @@ from sklearn.model_selection import StratifiedKFold
 class BaseClassifier:
 
     def __init__(self, name):
+
+        """
+        Base classifier class
+        :param name: name of the classifier (str)
+        """
+
         self.name = name
 
     def fit(self, X, y):
 
         """
-
-        :param X:
-        :param y:
-        :return:
+        Fit model
+        :param X: array with molecule features and their values
+        :param y: array with target values
+        :return: model fitted into data
         """
 
         self.model.fit(X, y)
@@ -24,14 +30,14 @@ class BaseClassifier:
     def cross_validate(self, X, y, n_splits):
 
         """
-
-        :param X:
-        :param y:
-        :param n_splits:
-        :return:
+        Cross-validate model
+        :param X: array with molecule features and their values
+        :param y: array with target values
+        :param n_splits: number of folds to split data into for cross-validation
+        :return: mean values of train and test scores
         """
 
-        skf = StratifiedKFold(n_splits=n_splits, random_state=self.random_state)
+        skf = StratifiedKFold(n_splits=n_splits)
 
         reports_train = []
         reports_test = []
@@ -66,10 +72,10 @@ class BaseClassifier:
     def validate(self, X_val, y_val):
 
         """
-
-        :param X_val:
-        :param y_val:
-        :return:
+        Validate model
+        :param X_val: validation data set with molecule features and their values
+        :param y_val: validation data set with target values
+        :return: classification report for model predictions on validation set
         """
 
         report = pd.DataFrame(classification_report(y_true=y_val,
@@ -77,3 +83,14 @@ class BaseClassifier:
                                                     output_dict=True)).T
 
         return report
+
+    def predict(self, X):
+        """
+        Validate model
+        :param X: data set with molecule features and their values
+        :return:
+        """
+
+        predictions = self.model.predict(X)
+
+        return predictions

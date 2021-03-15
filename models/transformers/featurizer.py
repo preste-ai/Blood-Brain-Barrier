@@ -5,23 +5,21 @@ from mordred import Calculator, descriptors
 
 class MordredFeaturizer:
 
-    def __init__(self, calculator, data, described_molecules):
+    def __init__(self, data):
 
         """
-
-        :param calculator:
-        :param data:
-        :param described_molecules:
+        Class for molecules featurization with Mordred
+        :param data: DataFrame with molecules SMILES to featurize
         """
 
-        self.calculator = calculator
         self.data = data
-        self.described_molecules = described_molecules
+        self.calculator = Calculator(descriptors, ignore_3D=True)
+        self.described_molecules = self.featurize()
 
     def make_molecule(self):
 
         """
-
+        Make RDKit molecules objects from SMILES
         :return:
         """
 
@@ -32,12 +30,9 @@ class MordredFeaturizer:
     def featurize(self):
 
         """
-
-        :return:
+        Featurize molecules with Mordred descriptors
+        :return: featurized data set
         """
-
-        if self.calculator is None:
-            self.calculator = Calculator(descriptors, ignore_3D=True)
 
         self.make_molecule()
 

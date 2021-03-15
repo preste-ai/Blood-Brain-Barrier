@@ -9,37 +9,39 @@ from models.classifiers.base import BaseClassifier
 
 class Transformer:
 
-    def __init__(self, X, y, n):
+    def __init__(self, n):
 
         """
-
-        :param X:
-        :param y:
-        :param n:
+        PCA data transformer class
+        :param n: number of principal components to construct
         """
 
-        self.X = X
-        self.y = y
         self.n = n
+        self.model = PCA(n_components=self.n)
 
-    def transform(self):
+    def transform(self, X, y):
 
         """
         Initialize and fit PCA model with n components
+        :param X: array with molecule features and their values
+        :param y: array with target values
         :return: transformed data
         """
 
-        model = PCA(n_components=self.n)
-        transformed = model.fit_transform(self.X, self.y)
+        transformed = self.model.fit_transform(X, y)
 
         return transformed
 
-    def find_best_n(self, number, class_weights):
+    def find_best_n(self, X, y, number, class_weights):
 
         """
-        define best number of components
+        Define best number of components using Logistic Regression precision and recall scores
+        :param X: array with molecule features and their values
+        :param y: array with target values
         :param number: max number of components to consider
-        :return:
+        :param class_weights: dictionary with weights for different classes for Logistic Regression
+        :return: plot with precision and recall scores for Logistic Regression
+                 fitted into data with different number of components
         """
 
         precisions = []
@@ -49,13 +51,12 @@ class Transformer:
         for n in n_components:
 
             transformer = PCA(n_components=n)
-            transformed = pd.DataFrame(transformer.fit_transform(self.X))
+            transformed = pd.DataFrame(transformer.fit_transform(X))
 
-            classifier = LogClassifier(class_weights=class_weights,
-                                       random_state=42)
+            classifier = LogClassifier(class_weights=class_weights)
 
             precision, recall = classifier.\
-                optimize_precision_recall(X=transformed, y=self.y, n_splits=5)
+                get_precision_recall(X=transformed, y=y, n_splits=5)
 
             precisions.append(precision)
             recalls.append(recall)
@@ -66,17 +67,19 @@ class Transformer:
         plt.title('Precision & Recall for different number of PCs used for LR model')
         plt.show()
 
-    def plot_transformed(self):
+    def plot_transformed(self, X, y):
 
         """
-
-        :return:
+        Plot data set PCA-transformed data
+        :param X: array with molecule features and their values
+        :param y: array with target values
+        :return: plot with data transformed into 2D with PCA, data points color-coded by classes
         """
 
         model = PCA(n_components=2)
-        transformed = model.fit_transform(self.X, self.y)
+        transformed = model.fit_transform(X, y)
 
-        pca_df = pd.DataFrame({'y': self.y,
+        pca_df = pd.DataFrame({'y': y,
                                'PC1': transformed[:, 0],
                                'PC2': transformed[:, 1]})
 
@@ -88,26 +91,25 @@ class Transformer:
 
 class LogClassifier(BaseClassifier):
 
-    def __init__(self, class_weights, random_state):
+    def __init__(self, class_weights):
 
         """
-
-        :param class_weights:
+        Logistic Regression model class
+        :param class_weights: dictionary with weights for different classes
         """
 
         super(BaseClassifier, self).__init__()
         self.class_weights = class_weights
-        self.random_state = random_state
         self.model = LogisticRegression(class_weight=self.class_weights)
 
-    def optimize_precision_recall(self, X, y, n_splits):
+    def get_precision_recall(self, X, y, n_splits):
 
         """
-
-        :param X:
-        :param y:
-        :param n_splits:
-        :return:
+        Get precision and recall scores with cross-validation
+        :param X: array with molecule features and their values
+        :param y: array with target values
+        :param n_splits: number of folds to split data into for cross-validation
+        :return: mean values of cross-validated precision and recall scores
         """
 
         cv = cross_validate(estimator=self.model,

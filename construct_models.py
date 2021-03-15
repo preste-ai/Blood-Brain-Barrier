@@ -13,9 +13,21 @@ from utils import plot_relationships
 class Constructor:
 
     def __init__(self, parameters):
+
+        """
+        Class with methods to transform dataset, train and validate models
+        :param parameters: dictionary with parameters for models
+        """
+
         self.parameters = parameters
 
     def make_data(self, plot=False):
+
+        """
+        Select important features, oversample data, and split data into train and validation sets
+        :param plot: boolean, True for plotting features/target relationships
+        :return: data set split into train and validation parts
+        """
 
         data = pd.read_csv(self.parameters['dataset_file'])
 
@@ -44,23 +56,35 @@ class Constructor:
 
     def transform(self, X, y):
 
+        """
+        Transform data with PCA
+        :param X: array with molecule features and their values
+        :param y: array with target values
+        :return: fitted PCA transformer and transformed data set
+        """
+
         # apply PCA
-        transformer = Transformer(X=X,
-                                  y=y,
-                                  n=self.parameters['pc_components'])
-        transformed = pd.DataFrame(transformer.transform())
+        transformer = Transformer(n=self.parameters['pc_components'])
+        transformed = pd.DataFrame(transformer.transform(X, y))
 
         return transformer, transformed
 
     def train_models(self, X_train, y_train):
+
+        """
+        Train Random Forest and PCR classifiers models
+        :param X_train: array with molecule features and their values
+        :param y_train: array with target values
+        :return: scores for train and test data sets for all developed models,
+                 trained models: PCA transformer, Logistic Regression model, and Random Forrest Classifier model
+        """
 
         transformer, transformed = self.transform(X=X_train,
                                                   y=y_train)
 
         log_classifier = LogClassifier(class_weights={int(k): v
                                                       for k, v
-                                                      in self.parameters['class_weights_log'].items()},
-                                       random_state=self.parameters['random_state'])
+                                                      in self.parameters['class_weights_log'].items()})
         log_scores_train, log_scores_test = log_classifier.cross_validate(X=transformed,
                                                                           y=y_train,
                                                                           n_splits=self.parameters['n_splits'])
@@ -85,12 +109,32 @@ class Constructor:
 
     def validate_model(self, model_path, X_val, y_val):
 
+        """
+        Validate model
+        :param model_path: path to the trained model file
+        :param X_val: array with molecule features and their values
+        :param y_val: array with target values
+        :return: classification report for model predictions on validation set
+        """
+
         with open(model_path, 'rb') as file:
             model = pickle.load(file)
 
         return model.validate(X_val, y_val)
 
-    def run(self, train, validate, dump):
+    def run(self, train, dump, validate):
+
+        """
+        Method to run Constructor on given data set
+        :param train: boolean, True for training model
+        :param dump: boolean, True for saving trained model
+        :param validate: boolean, True for validating trained model
+        :return: depending on train, dump, and validate parameter values:
+                 (train=True, dump=False, validate=False) - training/test scores for models
+                 (train=True, dump=True, validate=False) - training/test scores for models + save trained models
+                 (train=False, dump=False, validate=True) - classification report for trained models predictions
+                 on validation set
+        """
 
         X_train, X_val, y_train, y_val = self.make_data()
         _, transformed_val = self.transform(X_val, y_val)
@@ -106,7 +150,7 @@ class Constructor:
 
             for model in models:
 
-                model_name = type(model).__name__ + self.parameters['target_name']
+                model_name = type(model).__name__
 
                 if 'Transformer' in model_name:
                     with open(f"{self.parameters['trained_transformers']}/{model_name}.pkl", 'wb') as file:
@@ -136,10 +180,9 @@ class Constructor:
 
 if __name__ == "__main__":
 
-    target = 'inhibitorsB1'
+    target = 'substrates'
     constructor = Constructor(parameters=json.load(open('parameters.json', 'r'))[target])
 
-    scores = constructor.run(train=False,
-                             validate=True,
-                             dump=False)
-
+    scores = constructor.run(train=True,
+                             dump=True,
+                             validate=False)

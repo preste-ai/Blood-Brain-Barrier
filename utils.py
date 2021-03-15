@@ -7,10 +7,10 @@ import seaborn as sns
 def calculate_pearsons(data, target):
 
     """
-    Pearson correlation
-    :param data:
-    :param target:
-    :return:
+    Calculate Pearson correlation between features and target
+    :param data: DataFrame with data on molecules
+    :param target: target name, str
+    :return: DataFrame with Pearson correlations between each feature and target
     """
 
     corr_df = data.corr().loc[target].drop(target).reset_index()
@@ -23,10 +23,10 @@ def calculate_pearsons(data, target):
 def calculate_mic(data, target):
 
     """
-    MIC calculation
-    :param data:
-    :param target:
-    :return:
+    Calculate MIC between features and target
+    :param data: DataFrame with data on molecules
+    :param target: target name, str
+    :return: Series with MIC between each feature and target
     """
 
     X = data.drop(target, axis=1)
@@ -45,10 +45,10 @@ def calculate_mic(data, target):
 def plot_relationships(data, target):
 
     """
-    Plot correlations and MIC
-    :param data:
-    :param target:
-    :return:
+    Plot relationships between features and target
+    :param data: DataFrame with data on molecules
+    :param target: target name, str
+    :return: plot with MIC and Pearson correlation values between each feature and target
     """
 
     corr_df = calculate_pearsons(data, target)

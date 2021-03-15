@@ -47,16 +47,13 @@ class Selector:
         corr_mask = corr <= 1
         X = X.loc[:, corr_mask]
 
-        # new method
-        # X = self.correlating_features(data=X, threshold=0.95)
-
         return X, y
 
     @staticmethod
     def correlating_features(data, threshold):
 
         """
-        detect and drop intercorrelated features
+        Detect and drop intercorrelated features
         :param data: data set to clean
         :param threshold: maximum value allowed for Pearson correlation between features
         :return: clean data
@@ -101,6 +98,8 @@ class Selector:
 
         """
         CHI2 filter
+        :param X: array with molecule features and their values
+        :param y: array with target values
         :return: boolean series with True for selected features
         """
 
@@ -114,6 +113,8 @@ class Selector:
 
         """
         RFE with RF filter
+        :param X: array with molecule features and their values
+        :param y: array with target values
         :return: boolean series with True for selected features
         """
 
@@ -131,6 +132,8 @@ class Selector:
 
         """
         LASSO filter
+        :param X: array with molecule features and their values
+        :param y: array with target values
         :return: boolean series with True for selected features
         """
 

@@ -6,6 +6,7 @@ class Sampler:
     def __init__(self, sampling_strategy, k_neighbors, random_state):
 
         """
+        Class for SMOTE oversampling
         :param sampling_strategy: fraction of minority class in the transformed data set
         """
 
