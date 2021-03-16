@@ -1,4 +1,10 @@
 {
+  "predictions": {
+    "input_data": "data/predictions/input.csv",
+    "output_data": "data/predictions/output{}.csv",
+    "target": "substrates"
+  },
+
   "general": {
     "raw_data": "data/raw/",
     "described_data": "data/described/",
