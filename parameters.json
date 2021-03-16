@@ -1,7 +1,7 @@
 {
   "predictions": {
     "input_data": "data/predictions/input.csv",
-    "output_data": "data/predictions/output{}.csv",
+    "output_data": "data/predictions/output/{}.csv",
     "target": "substrates"
   },
 
