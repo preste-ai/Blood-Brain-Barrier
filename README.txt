@@ -24,7 +24,7 @@ Usage:
 	data/predictions/input.csv
 
 2) Insert the output to predict in the "target" from "predictions" section of  parameters.json.
-   Three values of output are possible: "substrates", "inhibitors_A2", "inhibitors_B1"
+   Three values of output are possible: "substrates", "inhibitorsA2", "inhibitorsB1"
 
 3) Run script for getting predictions  using following syntax:
 

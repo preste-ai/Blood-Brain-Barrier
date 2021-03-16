@@ -180,7 +180,7 @@ class Constructor:
 
 if __name__ == "__main__":
 
-    target = 'substrates'
+    target = 'inhibitorsB1'
     constructor = Constructor(parameters=json.load(open('parameters.json', 'r'))[target])
 
     scores = constructor.run(train=True,
